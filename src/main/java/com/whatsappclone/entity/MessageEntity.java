@@ -24,6 +24,7 @@ public class MessageEntity extends BaseAuditingEntity {
     private Long id;
     @Column(columnDefinition = "TEXT")
     private String content;
+    private String mediaFilePath;
     @Enumerated(EnumType.STRING)
     private MessageState state;
     @Enumerated(EnumType.STRING)
