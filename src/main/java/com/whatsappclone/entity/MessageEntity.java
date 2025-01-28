@@ -14,6 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "messages")
+@NamedQuery(name = "SET_MESSAGES_TO_SEEN_BY_CHAT_ID",
+            query = "UPDATE MessageEntity SET state = :newState WHERE chat.id = :chatId")
 public class MessageEntity extends BaseAuditingEntity {
 
     @Id
