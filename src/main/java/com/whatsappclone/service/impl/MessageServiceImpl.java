@@ -4,13 +4,16 @@ import com.whatsappclone.dto.MessageRequest;
 import com.whatsappclone.dto.MessageResponse;
 import com.whatsappclone.entity.ChatEntity;
 import com.whatsappclone.entity.MessageEntity;
+import com.whatsappclone.entity.Notification;
 import com.whatsappclone.enums.MessageState;
 import com.whatsappclone.enums.MessageType;
+import com.whatsappclone.enums.NotificationType;
 import com.whatsappclone.mapper.MessageMapper;
 import com.whatsappclone.repository.ChatRepository;
 import com.whatsappclone.repository.MessageRepository;
 import com.whatsappclone.service.FileService;
 import com.whatsappclone.service.MessageService;
+import com.whatsappclone.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -21,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static com.whatsappclone.repository.specification.MessageSpecification.findAllMessagesByChatId;
+import static com.whatsappclone.service.FileService.readFileFromLocation;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +34,7 @@ public class MessageServiceImpl implements MessageService {
     private final ChatRepository chatRepository;
     private final MessageMapper messageMapper;
     private final FileService fileService;
+    private final NotificationService notificationService;
 
     @Override
     public void saveMessage(MessageRequest request) {
@@ -45,8 +50,16 @@ public class MessageServiceImpl implements MessageService {
         message.setState(MessageState.SENT);
         messageRepository.save(message);
 
-        // notification sys
-
+        Notification notification = Notification.builder()
+                .chatId(request.chatId())
+                .chatName(chat.getChatName(request.senderId()))
+                .senderId(request.senderId())
+                .receiverId(request.receiverId())
+                .messageType(request.type())
+                .content(request.content())
+                .notificationType(NotificationType.MESSAGE)
+                .build();
+        notificationService.sendNotification(request.receiverId(), notification);
     }
 
     @Override
@@ -63,12 +76,18 @@ public class MessageServiceImpl implements MessageService {
         ChatEntity chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Chat with id: " + chatId + " not found"));
 
-//        String recipientId = getRecipientId(chat, currentUser);
+        final String senderId = getSenderId(chat, currentUser);
+        final String recipientId = getRecipientId(chat, currentUser);
 
         messageRepository.setMessagesToSeenByChatId(chatId, MessageState.SEEN);
 
-        // notification sys
-
+        Notification notification = Notification.builder()
+                .chatId(chatId)
+                .senderId(senderId)
+                .receiverId(recipientId)
+                .notificationType(NotificationType.SEEN)
+                .build();
+        notificationService.sendNotification(recipientId, notification);
     }
 
     @Override
@@ -90,8 +109,15 @@ public class MessageServiceImpl implements MessageService {
         message.setMediaFilePath(filePath);
         messageRepository.save(message);
 
-        // notification sys
-
+        Notification notification = Notification.builder()
+                .chatId(chatId)
+                .notificationType(NotificationType.IMAGE)
+                .messageType(MessageType.IMAGE)
+                .senderId(senderId)
+                .receiverId(recipientId)
+                .media(readFileFromLocation(filePath))
+                .build();
+        notificationService.sendNotification(recipientId, notification);
     }
 
 
