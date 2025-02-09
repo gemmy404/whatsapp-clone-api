@@ -13,7 +13,7 @@ public class ChatSpecification {
             Predicate chatFilter = criteriaBuilder.or(
                     criteriaBuilder.equal(root.get("sender").get("id"), senderId),
                     criteriaBuilder.equal(root.get("recipient").get("id"), senderId));
-            query.orderBy(criteriaBuilder.desc(root.get("createdDate")));
+            query.orderBy(criteriaBuilder.desc(root.get("lastModifiedDate")));
             return chatFilter;
         };
     }
