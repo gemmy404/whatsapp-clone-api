@@ -43,6 +43,14 @@ public class ChatEntity extends BaseAuditingEntity {
     }
 
     @Transient
+    public String getTargetChatName(final String senderId) {
+        if (sender.getId().equals(senderId)) {
+            return sender.getFirstName() + " " + sender.getLastName();
+        }
+        return recipient.getFirstName() + " " + recipient.getLastName();
+    }
+
+    @Transient
     public long getUnreadMessages(final String senderId) {
         // If senderId(connectedUser) is receiver in msgs, then count num of unread msg
         return messages.stream()

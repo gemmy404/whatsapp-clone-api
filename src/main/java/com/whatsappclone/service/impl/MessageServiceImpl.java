@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.whatsappclone.repository.specification.MessageSpecification.findAllMessagesByChatId;
@@ -50,9 +51,12 @@ public class MessageServiceImpl implements MessageService {
         message.setState(MessageState.SENT);
         messageRepository.save(message);
 
+        chat.setLastModifiedDate(LocalDateTime.now());
+        chatRepository.save(chat);
+
         Notification notification = Notification.builder()
                 .chatId(request.chatId())
-                .chatName(chat.getChatName(request.senderId()))
+                .chatName(chat.getTargetChatName(request.senderId()))
                 .senderId(request.senderId())
                 .receiverId(request.receiverId())
                 .messageType(request.type())
@@ -109,6 +113,9 @@ public class MessageServiceImpl implements MessageService {
         message.setType(MessageType.IMAGE);
         message.setMediaFilePath(filePath);
         messageRepository.save(message);
+
+        chat.setLastModifiedDate(LocalDateTime.now());
+        chatRepository.save(chat);
 
         Notification notification = Notification.builder()
                 .chatId(chatId)
