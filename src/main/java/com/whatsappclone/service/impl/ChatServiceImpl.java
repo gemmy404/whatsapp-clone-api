@@ -48,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
 
         UserEntity sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id: " + senderId + " not found"));
-        UserEntity receiver = userRepository.findById(senderId)
+        UserEntity receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id: " + receiverId + " not found"));
 
         ChatEntity chat = new ChatEntity();

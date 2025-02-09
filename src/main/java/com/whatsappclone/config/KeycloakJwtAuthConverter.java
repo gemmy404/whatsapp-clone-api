@@ -29,9 +29,8 @@ public class KeycloakJwtAuthConverter implements Converter<Jwt, AbstractAuthenti
     }
 
     private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt) {
-        Map<String, Object> resourceAccess = new HashMap<>(jwt.getClaim("resource_access"));
-        Map<String, List<String>> eternal = (Map<String, List<String>>) resourceAccess.get("account");
-        List<String> roles = eternal.get("roles");
+        Map<String, Object> realmAccess = new HashMap<>(jwt.getClaim("realm_access"));
+        List<String> roles = (List<String>) realmAccess.get("roles");
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.replace('-', '_')))
                 .collect(Collectors.toSet());

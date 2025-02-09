@@ -57,7 +57,7 @@ public class MessageServiceImpl implements MessageService {
                 .receiverId(request.receiverId())
                 .messageType(request.type())
                 .content(request.content())
-                .notificationType(NotificationType.MESSAGE)
+                .type(NotificationType.MESSAGE)
                 .build();
         notificationService.sendNotification(request.receiverId(), notification);
     }
@@ -85,9 +85,10 @@ public class MessageServiceImpl implements MessageService {
                 .chatId(chatId)
                 .senderId(senderId)
                 .receiverId(recipientId)
-                .notificationType(NotificationType.SEEN)
+                .type(NotificationType.SEEN)
                 .build();
         notificationService.sendNotification(recipientId, notification);
+
     }
 
     @Override
@@ -111,7 +112,7 @@ public class MessageServiceImpl implements MessageService {
 
         Notification notification = Notification.builder()
                 .chatId(chatId)
-                .notificationType(NotificationType.IMAGE)
+                .type(NotificationType.IMAGE)
                 .messageType(MessageType.IMAGE)
                 .senderId(senderId)
                 .receiverId(recipientId)
