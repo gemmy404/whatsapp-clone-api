@@ -31,4 +31,9 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getChatsByReceiverId(currentUser));
     }
 
+    @GetMapping("/un-read")
+    public ResponseEntity<List<ChatResponse>> getUnreadChatsByReceiverId(Authentication currentUser) {
+        return ResponseEntity.ok(chatService.getUnreadChatsByReceiverId(currentUser));
+    }
+
 }

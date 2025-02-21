@@ -12,4 +12,6 @@ public interface ChatService {
 
     StringResponse createChat(String senderId, String receiverId);
 
+    List<ChatResponse> getUnreadChatsByReceiverId(Authentication currentUser);
+
 }

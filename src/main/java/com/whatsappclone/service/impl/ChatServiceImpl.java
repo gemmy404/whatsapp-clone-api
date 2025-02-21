@@ -17,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.whatsappclone.repository.specification.ChatSpecification.findAllChatsBySenderId;
-import static com.whatsappclone.repository.specification.ChatSpecification.findChatBySenderIdAndRecipientId;
+import static com.whatsappclone.repository.specification.ChatSpecification.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,16 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = true)
     public List<ChatResponse> getChatsByReceiverId(Authentication currentUser) {
         final String userId = currentUser.getName();
-        return chatRepository.findAll(findAllChatsBySenderId(userId))
+        return chatRepository.findAll(findAllChatsByUserId(userId))
+                .stream()
+                .map(chat -> chatMapper.toChatResponse(chat, userId))
+                .toList();
+    }
+
+    @Override
+    public List<ChatResponse> getUnreadChatsByReceiverId(Authentication currentUser) {
+        final String userId = currentUser.getName();
+        return chatRepository.findAll(findUnreadChatsByUserId(userId))
                 .stream()
                 .map(chat -> chatMapper.toChatResponse(chat, userId))
                 .toList();
