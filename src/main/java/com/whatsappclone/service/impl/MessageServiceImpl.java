@@ -11,12 +11,14 @@ import com.whatsappclone.enums.NotificationType;
 import com.whatsappclone.mapper.MessageMapper;
 import com.whatsappclone.repository.ChatRepository;
 import com.whatsappclone.repository.MessageRepository;
+import com.whatsappclone.repository.UserRepository;
 import com.whatsappclone.service.FileService;
 import com.whatsappclone.service.MessageService;
 import com.whatsappclone.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +35,7 @@ public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
     private final MessageMapper messageMapper;
     private final FileService fileService;
     private final NotificationService notificationService;
@@ -41,6 +44,11 @@ public class MessageServiceImpl implements MessageService {
     public void saveMessage(MessageRequest request) {
         ChatEntity chat = chatRepository.findById(request.chatId())
                 .orElseThrow(() -> new EntityNotFoundException("Chat with id: " + request.chatId() + " not found"));
+
+        userRepository.findById(request.senderId()).orElseThrow(() -> new
+                UsernameNotFoundException("Sender with id: " + request.senderId() + " not found"));
+        userRepository.findById(request.receiverId()).orElseThrow(() -> new
+                UsernameNotFoundException("Receiver with id: " + request.receiverId() + " not found"));
 
         MessageEntity message = new MessageEntity();
         message.setChat(chat);

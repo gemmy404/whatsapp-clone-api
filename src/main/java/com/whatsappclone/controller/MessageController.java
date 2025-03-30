@@ -5,6 +5,7 @@ import com.whatsappclone.dto.MessageResponse;
 import com.whatsappclone.service.MessageService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping
-    public ResponseEntity<?> saveMessage(@RequestBody MessageRequest request) {
+    public ResponseEntity<?> saveMessage(@Valid @RequestBody MessageRequest request) {
         messageService.saveMessage(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

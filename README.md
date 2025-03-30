@@ -24,6 +24,7 @@ This is a real-time **chat application** built using modern technologies to enab
 - OAuth2 & Keycloak
 - Spring Data JPA
 - PostgreSQL
+- Flyway (DB Migration)
 - WebSockets
 - MapStruct
 - Lombok
