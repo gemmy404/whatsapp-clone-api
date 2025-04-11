@@ -36,4 +36,10 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getUnreadChatsByReceiverId(currentUser));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ChatResponse>> searchChatsByName(@RequestParam("name") String name,
+                                                                Authentication currentUser) {
+        return ResponseEntity.ok(chatService.searchChatsByName(name, currentUser));
+    }
+
 }

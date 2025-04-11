@@ -14,4 +14,6 @@ public interface ChatService {
 
     List<ChatResponse> getUnreadChatsByReceiverId(Authentication currentUser);
 
+    List<ChatResponse> searchChatsByName(String name, Authentication currentUser);
+
 }

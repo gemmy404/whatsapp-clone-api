@@ -67,4 +67,13 @@ public class ChatServiceImpl implements ChatService {
         return new StringResponse(savedChat.getId());
     }
 
+    @Override
+    public List<ChatResponse> searchChatsByName(String name, Authentication currentUser) {
+        final String userId = currentUser.getName();
+        return chatRepository.findAll(findChatsByName(userId, name))
+                .stream()
+                .map(chat -> chatMapper.toChatResponse(chat, userId))
+                .toList();
+    }
+
 }
