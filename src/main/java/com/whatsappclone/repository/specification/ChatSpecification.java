@@ -2,6 +2,7 @@ package com.whatsappclone.repository.specification;
 
 import com.whatsappclone.entity.ChatEntity;
 import com.whatsappclone.enums.MessageState;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -48,6 +49,39 @@ public class ChatSpecification {
             );
             query.orderBy(criteriaBuilder.desc(root.get("createdDate")));
             return chatFilter;
+        };
+    }
+
+    public static Specification<ChatEntity> findChatsByName(String userId, String name) {
+        return (root, query, criteriaBuilder) -> {
+            String searchName = "%" + name.toLowerCase().replaceAll("\\s", "") + "%";
+
+            Expression<String> senderFullName = criteriaBuilder.lower(
+                    criteriaBuilder.concat(
+                            root.get("sender").get("firstName"),
+                            root.get("sender").get("lastName"))
+            );
+
+            Expression<String> recipientFullName = criteriaBuilder.lower(
+                    criteriaBuilder.concat(
+                            root.get("recipient").get("firstName"),
+                            root.get("recipient").get("lastName"))
+            );
+
+            // Fetch the chats of the current user
+            Predicate userIsSender = criteriaBuilder.equal(root.get("sender").get("id"), userId);
+            Predicate userIsRecipient = criteriaBuilder.equal(root.get("recipient").get("id"), userId);
+
+            Predicate searchInRecipientName = criteriaBuilder.and(
+                    userIsSender,
+                    criteriaBuilder.like(recipientFullName, searchName)
+            );
+            Predicate searchInSenderName = criteriaBuilder.and(
+                    userIsRecipient,
+                    criteriaBuilder.like(senderFullName, searchName)
+            );
+
+            return criteriaBuilder.or(searchInRecipientName, searchInSenderName);
         };
     }
 
