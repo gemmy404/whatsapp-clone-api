@@ -1,13 +1,16 @@
 package com.whatsappclone.service.impl;
 
+import com.whatsappclone.dto.MessageContentRequest;
 import com.whatsappclone.dto.MessageRequest;
 import com.whatsappclone.dto.MessageResponse;
 import com.whatsappclone.entity.ChatEntity;
 import com.whatsappclone.entity.MessageEntity;
 import com.whatsappclone.entity.Notification;
+import com.whatsappclone.enums.MessageDeleteType;
 import com.whatsappclone.enums.MessageState;
 import com.whatsappclone.enums.MessageType;
 import com.whatsappclone.enums.NotificationType;
+import com.whatsappclone.exception.OperationNotPermittedException;
 import com.whatsappclone.mapper.MessageMapper;
 import com.whatsappclone.repository.ChatRepository;
 import com.whatsappclone.repository.MessageRepository;
@@ -16,6 +19,7 @@ import com.whatsappclone.service.FileService;
 import com.whatsappclone.service.MessageService;
 import com.whatsappclone.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -77,6 +81,8 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<MessageResponse> findChatMessages(String chatId, Authentication currentUser) {
         final String userId = currentUser.getName();
+        chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat with id: " + chatId + " not found"));
         return messageRepository.findAll(findAllMessagesByChatId(chatId, userId))
                 .stream()
                 .map(messageMapper::toMessageResponse)
@@ -135,6 +141,37 @@ public class MessageServiceImpl implements MessageService {
                 .media(readFileFromLocation(filePath))
                 .build();
         notificationService.sendNotification(recipientId, notification);
+    }
+
+    @Override
+    public void updateMessageContent(MessageContentRequest request, Authentication currentUser) {
+        final String userId = currentUser.getName();
+        MessageEntity savedMessage = messageRepository.findById(request.messageId()).orElseThrow(() -> new
+                EntityNotFoundException("Message with id: " + request.messageId() + " not found"));
+        if (!savedMessage.getSenderId().equals(userId)) {
+            throw new OperationNotPermittedException("You do not have permission to edit this message");
+        }
+        savedMessage.setContent(request.newContent());
+        messageRepository.save(savedMessage);
+    }
+
+    @Override
+    public void deleteMessage(Long messageId, @NotEmpty MessageDeleteType deleteType, Authentication currentUser) {
+        final String userId = currentUser.getName();
+        MessageEntity savedMessage = messageRepository.findById(messageId).orElseThrow(() -> new
+                EntityNotFoundException("Message with id: " + messageId + " not found"));
+
+        if (savedMessage.getSenderId().equals(userId) && deleteType.equals(MessageDeleteType.DELETE_FOR_ME)) {
+            savedMessage.setSenderDeleted(true);
+            messageRepository.save(savedMessage);
+        } else if (savedMessage.getReceiverId().equals(userId) && deleteType.equals(MessageDeleteType.DELETE_FOR_ME)) {
+            savedMessage.setReceiverDeleted(true);
+            messageRepository.save(savedMessage);
+        } else if (savedMessage.getSenderId().equals(userId) && deleteType.equals(MessageDeleteType.DELETE_FOR_EVERYONE)) {
+            messageRepository.deleteById(messageId);
+        } else {
+            throw new OperationNotPermittedException("You do not have permission to delete this message");
+        }
     }
 
 

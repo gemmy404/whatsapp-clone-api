@@ -1,7 +1,9 @@
 package com.whatsappclone.controller;
 
+import com.whatsappclone.dto.MessageContentRequest;
 import com.whatsappclone.dto.MessageRequest;
 import com.whatsappclone.dto.MessageResponse;
+import com.whatsappclone.enums.MessageDeleteType;
 import com.whatsappclone.service.MessageService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,16 +41,31 @@ public class MessageController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/chat/{chat-id}")
+    public ResponseEntity<List<MessageResponse>> getAllMessages(@PathVariable("chat-id") String chatId,
+                                                                Authentication currentUser) {
+        return ResponseEntity.ok(messageService.findChatMessages(chatId, currentUser));
+    }
+
     @PatchMapping
     public ResponseEntity<?> setMessageToSeen(@RequestParam("chat-id") String chatId, Authentication currentUser) {
         messageService.setMessagesToSeen(chatId, currentUser);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/chat/{chat-id}")
-    public ResponseEntity<List<MessageResponse>> getAllMessages(@PathVariable("chat-id") String chatId,
-                                                                Authentication currentUser) {
-        return ResponseEntity.ok(messageService.findChatMessages(chatId, currentUser));
+    @PatchMapping("/contents")
+    public ResponseEntity<?> updateMessageContent(@RequestBody MessageContentRequest request,
+                                                  Authentication currentUser) {
+        messageService.updateMessageContent(request, currentUser);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/{message-id}")
+    public ResponseEntity<?> deleteMessage(@PathVariable("message-id") Long messageId,
+                                           @RequestParam("delete-type") MessageDeleteType deleteType,
+                                           Authentication currentUser) {
+        messageService.deleteMessage(messageId, deleteType, currentUser);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }
