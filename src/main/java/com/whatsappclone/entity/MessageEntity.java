@@ -29,6 +29,10 @@ public class MessageEntity extends BaseAuditingEntity {
     private MessageState state;
     @Enumerated(EnumType.STRING)
     private MessageType type;
+    @Column(nullable = false)
+    private Boolean senderDeleted = Boolean.FALSE;
+    @Column(nullable = false)
+    private Boolean receiverDeleted = Boolean.FALSE;
 
     @ManyToOne
     @JoinColumn(name = "chat_id")

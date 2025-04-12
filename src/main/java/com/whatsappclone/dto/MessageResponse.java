@@ -13,6 +13,8 @@ public record MessageResponse(
         String senderId,
         String receiverId,
         LocalDateTime createdAt,
-        byte[] media
+        byte[] media,
+        Boolean senderDeleted,
+        Boolean receiverDeleted
 ) {
 }

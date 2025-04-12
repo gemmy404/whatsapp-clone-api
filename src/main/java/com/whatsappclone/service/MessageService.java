@@ -11,7 +11,7 @@ public interface MessageService {
 
     void saveMessage(MessageRequest request);
 
-    List<MessageResponse> findChatMessages(String chatId);
+    List<MessageResponse> findChatMessages(String chatId, Authentication currentUser);
 
     void setMessagesToSeen(String chatId, Authentication currentUser);
 

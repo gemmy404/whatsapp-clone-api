@@ -46,8 +46,9 @@ public class MessageController {
     }
 
     @GetMapping("/chat/{chat-id}")
-    public ResponseEntity<List<MessageResponse>> getAllMessages(@PathVariable("chat-id") String chatId) {
-        return ResponseEntity.ok(messageService.findChatMessages(chatId));
+    public ResponseEntity<List<MessageResponse>> getAllMessages(@PathVariable("chat-id") String chatId,
+                                                                Authentication currentUser) {
+        return ResponseEntity.ok(messageService.findChatMessages(chatId, currentUser));
     }
 
 }

@@ -1,0 +1,3 @@
+ALTER TABLE messages
+    ADD sender_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD receiver_deleted BOOLEAN NOT NULL DEFAULT FALSE;

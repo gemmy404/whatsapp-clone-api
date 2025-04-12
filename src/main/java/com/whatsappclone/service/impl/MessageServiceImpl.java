@@ -75,8 +75,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageResponse> findChatMessages(String chatId) {
-        return messageRepository.findAll(findAllMessagesByChatId(chatId))
+    public List<MessageResponse> findChatMessages(String chatId, Authentication currentUser) {
+        final String userId = currentUser.getName();
+        return messageRepository.findAll(findAllMessagesByChatId(chatId, userId))
                 .stream()
                 .map(messageMapper::toMessageResponse)
                 .toList();
