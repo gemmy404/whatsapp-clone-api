@@ -1,6 +1,7 @@
 package com.whatsappclone.handler;
 
 import com.whatsappclone.dto.ExceptionResponse;
+import com.whatsappclone.exception.OperationNotPermittedException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -39,6 +40,18 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return ResponseEntity
                 .status(NOT_FOUND)
+                .body(
+                        ExceptionResponse.builder()
+                                .businessError(e.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(OperationNotPermittedException.class)
+    public ResponseEntity<ExceptionResponse> handleOperationNotPermittedException(final OperationNotPermittedException e) {
+        log.error(e.getMessage());
+        return ResponseEntity
+                .status(BAD_REQUEST)
                 .body(
                         ExceptionResponse.builder()
                                 .businessError(e.getMessage())
